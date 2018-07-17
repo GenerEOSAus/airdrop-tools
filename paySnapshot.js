@@ -13,6 +13,7 @@ airdropConfig = {
   contract: 'poormantoken',
   privKey: 'TOKEN CONTRACT PRIVATE KEY',
   symbol: 'POOR',
+  precision: 4,
   minimum: '1.0000 POOR', //minimum award
   threshold: 1, //minimum awarded to anyone below this threshold
   memo: 'Thanks for being POOR with us!',
