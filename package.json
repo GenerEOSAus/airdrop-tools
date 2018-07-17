@@ -1,0 +1,24 @@
+{
+  "name": "airdrop-tools",
+  "version": "1.0.0",
+  "description": "Take snapshots of EOS network and deploy tokens",
+  "main": "takeSnapshot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genereos//airdrop-tools.git"
+  },
+  "author": "Nathan Rempel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/genereos//airdrop-tools/issues"
+  },
+  "homepage": "https://github.com/genereos/airdrop-tools#readme",
+  "dependencies": {
+    "async": "^2.6.1",
+    "eosjs": "^15.0.0",
+    "papaparse": "^4.5.0"
+  }
+}
