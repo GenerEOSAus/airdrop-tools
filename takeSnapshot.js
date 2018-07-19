@@ -32,7 +32,6 @@ async function IsRegistered(token,name) {
 }
 
 async function GetDetails(name,tries=0) {
-  console.log("Details");
   try {
     const account = await eosClient.getAccount(name);
     if(airgrab) {
@@ -41,7 +40,6 @@ async function GetDetails(name,tries=0) {
     } else {
       account.registered = [];
     }
-    console.log(JSON.stringify(account));
     return account;
   } catch(e) {
     console.log(name + ": " + tries);
