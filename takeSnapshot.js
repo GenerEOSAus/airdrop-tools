@@ -79,7 +79,7 @@ async function CreateRow(name) {
         "proxy": details.voter_info ? details.voter_info.proxy : '',
         "proxyVotes": proxyVotes,
         "votes": details.voter_info ? details.voter_info.producers.length : 0,
-        "registered": details.registered.length > 0 ? true : false,
+        "registered": details.registered,
       };
       var write = Papa.unparse([formatted],{header:false});
       fs.appendFile(__dirname + '/' + filename, '\n'+write, (err) => {

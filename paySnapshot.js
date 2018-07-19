@@ -78,14 +78,22 @@ async function PayAllAccounts() {
     while(data.length > 0) {
       let names = data.splice(0,30);
       let success = false;
+      let done = false;
+      let attempts = 0;
       proc += names.length;
 
-      while(!success) {
-        try {
-          await IssuePayment(names);
-          success = true;
-        } catch(e) {
-          console.log("Failed, retrying segement " + proc + "...");
+      while(!done) {
+        if(attempts < 3) {
+          try {
+            await IssuePayment(names);
+            success = true;
+            done = true;
+          } catch(e) {
+            console.log("Failed, retrying segement " + proc + "...");
+            attempts++;
+          }
+        } else {
+          done = true;
         }
       }
 
@@ -93,7 +101,7 @@ async function PayAllAccounts() {
         let formatted = {
           name: name[0],
           payment: name[1],
-          processed: true
+          processed: success
         };
         var write = Papa.unparse([formatted],{header:false});
         fs.appendFile(__dirname + '/' + filename, '\n'+write, (err) => {
