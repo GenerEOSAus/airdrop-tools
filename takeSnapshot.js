@@ -14,7 +14,7 @@ airgrab = 'poormantoken'; //set to false if no airgrab
 
 config = {
   chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906', // 32 byte (64 char) hex string
-  httpEndpoint: 'https://mainnet.genereos.io:443', //probably localhost
+  httpEndpoint: 'http://localhost:8888', //probably localhost
   expireInSeconds: 60,
   broadcast: true,
   debug: false, // API and transactions
@@ -32,6 +32,7 @@ async function IsRegistered(token,name) {
 }
 
 async function GetDetails(name,tries=0) {
+  console.log("Details");
   try {
     const account = await eosClient.getAccount(name);
     if(airgrab) {
@@ -40,6 +41,7 @@ async function GetDetails(name,tries=0) {
     } else {
       account.registered = [];
     }
+    console.log(JSON.stringify(account));
     return account;
   } catch(e) {
     console.log(name + ": " + tries);
@@ -60,8 +62,11 @@ async function GetProxyVotes(proxy) {
   }
 }
 
-async function CreateRow(name) {
-  let details = await GetDetails(name[0]);
+async function CreateRow(row) {
+  let name = row[0].trim()
+  if(name === '') return;
+  let details = await GetDetails(name);
+
   if(details) {
     try {
       let eos = Number(details.core_liquid_balance ? details.core_liquid_balance.split(' ')[0] : 0);
