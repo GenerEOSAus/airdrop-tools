@@ -12,7 +12,7 @@ process.on('unhandledRejection', error => {
 
 config = {
   chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906', // 32 byte (64 char) hex string
-  httpEndpoint: 'http://localhost:8080', //probably localhost
+  httpEndpoint: 'localhost:8080', //probably localhost
   expireInSeconds: 60,
   broadcast: true,
   debug: false, // API and transactions
@@ -50,11 +50,22 @@ async function GetAllAccountNames() {
         "name": v.owner,
       };
       accounts.push(formatted);
-      var csv = Papa.unparse([formatted],{header:false});
-      fs.appendFile(__dirname + '/' + names, '\n'+csv, (err) => {
-          if (err) throw err;
-      });
     });
+  }
+
+  console.log("Have downloaded " + accounts.length + " accounts\r");
+  console.log("Making unique");
+
+  try {
+    let unique = [...new Set(accounts)];
+    console.log("Saving names");
+    var csv = Papa.unparse(unique,{header:false});
+    fs.appendFile(__dirname + '/' + names, '\n'+csv, (err) => {
+        if (err) throw err;
+    });
+    console.log("Have saved " + unique.length + " accounts\r");
+  } catch(e) {
+    console.log(e);
   }
 }
 
