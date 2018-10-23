@@ -65,6 +65,9 @@ async function GetDetails(name,tries=0) {
     } else {
       account.registered = [];
     }
+
+    const liquid = await IsRegistered('eosio.token',name);
+    account.core_liquid_balance = liquid[0];
     return account;
   } catch(e) {
     console.log(name + ": " + tries);
