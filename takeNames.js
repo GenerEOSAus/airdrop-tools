@@ -12,7 +12,7 @@ process.on('unhandledRejection', error => {
 
 config = {
   chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906', // 32 byte (64 char) hex string
-  httpEndpoint: 'localhost:8080', //probably localhost
+  httpEndpoint: //'localhost:8080', //probably localhost
   expireInSeconds: 60,
   broadcast: true,
   debug: false, // API and transactions

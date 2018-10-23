@@ -11,7 +11,7 @@ process.on('unhandledRejection', error => {
 
 airdropConfig = {
   contract: 'democoindrop',
-  privKey: '',
+  privKey: '5KL5mo95XtNMTfvi9DQZv34UaaDpoNzfotrGXTyWcE5SXNDPTq9',
   symbol: 'DEMO',
   precision: 4,
   minimum: '1.0000 DEMO', //minimum award
@@ -34,14 +34,9 @@ eosConfig = {
 eosClient = Eos(eosConfig);
 
 async function Payment(tr,name,quantity) {
-  //Calculate the actual payment amount based on the provided CSV
-  let actual = `${Number(quantity).toFixed(airdropConfig.precision).toString()} ${airdropConfig.symbol}`;
-  //Determine if we award the minimum
-  let payment = Number(quantity) < airdropConfig.threshold ? airdropConfig.minimum : actual;
-  return tr.issue(
-    name.toString().trim(), //the person receiving the airdrop
-    payment,                //the payment quantity
-    airdropConfig.memo,     //the airdrop memo
+  return tr.recover(
+    name.toString().trim(),                               //the person losing the airdrop
+    `${airdropConfig.precision},${airdropConfig.symbol}`, //the symbol
     {authorization: airdropConfig.contract}
   );
 }

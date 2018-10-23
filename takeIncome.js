@@ -1,8 +1,7 @@
 Eos = require('eosjs'); // Eos = require('./src')
 fs = require("fs");
 Papa = require("papaparse");
-filename = "snapshot-" + Date.now() + ".csv";
-names = "names-" + Date.now() + ".csv";
+filename = "incomeReport-" + Date.now() + ".csv";
 
 
 process.on('unhandledRejection', error => {
@@ -10,11 +9,11 @@ process.on('unhandledRejection', error => {
 });
 
 // if you are running an airgrab, specify your contract
-airgrab = 'poormantoken'; //set to false if no airgrab
+airgrab = false; //set to false if no airgrab
 
 config = {
   chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906', // 32 byte (64 char) hex string
-  httpEndpoint: 'https://mainnet.genereos.io:443', //probably localhost
+  httpEndpoint: 'https://mainnet.genereos.io', //probably localhost
   expireInSeconds: 60,
   broadcast: true,
   debug: false, // API and transactions
@@ -31,34 +30,9 @@ async function IsRegistered(token,name) {
   }
 }
 
-async function GetDelegated(name) {
-  try {
-    const table =  {
-      json: true,
-      scope: name,
-      code: 'eosio',
-      table: 'delband',
-      limit: 500
-    }
-    let total = 0;
-    const delegated = await eosClient.getTableRows(table);
-    delegated.rows.map((row)=> {
-      const net = Number(row.net_weight.split(' ')[0]);
-      const cpu = Number(row.cpu_weight.split(' ')[0]);
-      total += (net+cpu);
-    });
-    return total;
-  } catch(e) {
-    return 0;
-  }
-}
-
-
 async function GetDetails(name,tries=0) {
   try {
     const account = await eosClient.getAccount(name);
-    account.delegated = await GetDelegated(name);
-
     if(airgrab) {
       const registered = await IsRegistered(airgrab,name);
       account.registered = registered;
@@ -93,7 +67,10 @@ async function CreateRow(row) {
   if(details) {
     try {
       let eos = Number(details.core_liquid_balance ? details.core_liquid_balance.split(' ')[0] : 0);
-      let stake = details.delegated;
+      let net = Number(details.self_delegated_bandwidth ? details.self_delegated_bandwidth.net_weight.split(' ')[0] : 0);
+      let cpu = Number(details.self_delegated_bandwidth ? details.self_delegated_bandwidth.cpu_weight.split(' ')[0] : 0);
+      let refundNet = Number(details.refund_request ? details.refund_request.net_amount.split(' ')[0] : 0);
+      let refundCpu = Number(details.refund_request ? details.refund_request.cpu_amount.split(' ')[0] : 0);
       let proxyVotes = 0;
       if(details.voter_info && details.voter_info.proxy) {
         proxyVotes = await GetProxyVotes(details.voter_info.proxy);
@@ -101,12 +78,10 @@ async function CreateRow(row) {
       let formatted = {
         "name": details.account_name,
         "eos": Number(eos.toFixed(4)),
-        "stake": Number(stake.toFixed(4)),
-        "totalEos": Number((stake+eos).toFixed(4)),
-        "proxy": details.voter_info ? details.voter_info.proxy : '',
-        "proxyVotes": proxyVotes,
-        "votes": details.voter_info ? details.voter_info.producers.length : 0,
-        "registered": details.registered,
+        "stake": Number((net+cpu).toFixed(4)),
+        "refund": Number((refundNet+refundCpu).toFixed(4)),
+        "totalEos": Number((net+cpu+eos+refundNet+refundCpu).toFixed(4)),
+        "totalRam": Number(details.ram_quota),
       };
       var write = Papa.unparse([formatted],{header:false});
       fs.appendFile(__dirname + '/' + filename, '\n'+write, (err) => {
@@ -123,7 +98,7 @@ async function CreateRow(row) {
 }
 
 async function GetAllAccounts() {
-  fs.readFile(__dirname + '/' + 'names.csv', 'utf8', async function (err,csv) {
+  fs.readFile(__dirname + '/' + 'income.csv', 'utf8', async function (err,csv) {
     if (err) {
       return console.log(err);
     }
