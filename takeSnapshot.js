@@ -10,7 +10,7 @@ process.on('unhandledRejection', error => {
 });
 
 // if you are running an airgrab, specify your contract
-airgrab = 'poormantoken'; //set to false if no airgrab
+airgrab = 'zkstokensr4u'; //set to false if no airgrab
 
 config = {
   chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906', // 32 byte (64 char) hex string
@@ -53,12 +53,33 @@ async function GetDelegated(name) {
   }
 }
 
+async function GetClaimed(name) {
+  try {
+    const table =  {
+      json: true,
+      scope: name,
+      code: airgrab,
+      table: "accounts",
+      limit: 5
+    }
+    let claimed = false;
+    const data = await eosClient.getTableRows(table);
+    console.log(data);
+    data.rows.map((row)=> {
+      claimed = row.claimed == 1;
+    });
+    return claimed;
+  } catch(e) {
+    console.log(e);
+    return false;
+  }
+}
 
 async function GetDetails(name,tries=0) {
   try {
     const account = await eosClient.getAccount(name);
     account.delegated = await GetDelegated(name);
-
+    account.claimed = await GetClaimed(name);
     if(airgrab) {
       const registered = await IsRegistered(airgrab,name);
       account.registered = registered;
@@ -110,6 +131,7 @@ async function CreateRow(row) {
         "proxyVotes": proxyVotes,
         "votes": details.voter_info ? details.voter_info.producers.length : 0,
         "registered": details.registered,
+        "claimed": details.claimed,
       };
       var write = Papa.unparse([formatted],{header:false});
       fs.appendFile(__dirname + '/' + filename, '\n'+write, (err) => {

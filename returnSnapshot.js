@@ -11,7 +11,7 @@ process.on('unhandledRejection', error => {
 
 airdropConfig = {
   contract: 'democoindrop',
-  privKey: '5KL5mo95XtNMTfvi9DQZv34UaaDpoNzfotrGXTyWcE5SXNDPTq9',
+  privKey: '',
   symbol: 'DEMO',
   precision: 4,
   minimum: '1.0000 DEMO', //minimum award
